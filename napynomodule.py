@@ -1,4 +1,4 @@
-import pandas as pd
+iimport pandas as pd
 import numpy asnp
 from typing import List
 
@@ -14,4 +14,11 @@ def df_unique(df_list: List[pd.DataFrame], columns=None):
     uni, ia, ic = np.unique(add, return_index=True, return_inverse=True)
     iclist = [[ic[j] for j in range(cumlendf[i], cumlendf[i + 1])] for i in range(len(cumlendf) - 1)]
     return uni, newdf.iloc[ia, :], iclist
+
+
+def split_df_col(df: pd.DataFrame, delim: str, split_col: str, new_cols: List[str]=None):
+    df2 = df[split_col].str.split(delim, expand=True)
+    if new_cols is not None:
+        df2.columns = new_cols
+    return pd.concat([df, df2], axis=1)
 
