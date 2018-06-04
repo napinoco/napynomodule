@@ -1,6 +1,11 @@
-iimport pandas as pd
-import numpy asnp
+import pandas as pd
+import numpy as np
 from typing import List
+import os
+import sys
+import chardet
+import scipy.sparse as sp
+import scipy.sparse.csgraph as csg
 
 
 def df_unique(df_list: List[pd.DataFrame], columns=None):
@@ -21,4 +26,36 @@ def split_df_col(df: pd.DataFrame, delim: str, split_col: str, new_cols: List[st
     if new_cols is not None:
         df2.columns = new_cols
     return pd.concat([df, df2], axis=1)
+
+
+def get_cwd():
+    if getattr(sys, 'frozen', False):
+        # we are running in a bundle
+        cwd = os.path.dirname(sys.executable)
+    else:
+        # we are running in a normal Python environment
+        try:
+            cwd = os.path.dirname(os.path.abspath(__file__))
+        except NameError:
+            cwd = os.getcwd()
+    return cwd
+
+
+def get_abs_path(file_name: str):
+    return os.path.join(get_cwd(), file_name)
+
+
+def check_encoding(file_path: str):
+    with open(file_path, mode='rb') as f:
+        return chardet.detect(f.readline())['encoding']
+
+
+def block_diagonalize_permutation(A: sp.spmatrix):
+    A = A.tocsc()
+    ATA = A.transpose().dot(A)
+    n, cmp = csg.connected_components(ATA)
+    col_list = [list(np.where(cmp == j)[0]) for j in range(n)]
+    print(col_list)
+    row_list = [list(np.unique(A[:, col_list[j]].nonzero()[0])) for j in range(n)]
+    return row_list, col_list
 
