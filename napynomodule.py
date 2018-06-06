@@ -18,7 +18,9 @@ def df_unique(df_list: List[pd.DataFrame], columns=None):
     add = newdf.apply(lambda x: '-'.join(map(str, x)), axis=1)
     uni, ia, ic = np.unique(add, return_index=True, return_inverse=True)
     iclist = [[ic[j] for j in range(cumlendf[i], cumlendf[i + 1])] for i in range(len(cumlendf) - 1)]
-    return uni, newdf.iloc[ia, :], iclist
+    retdf = newdf.iloc[ia, :]
+    retdf.assign(id=uni)
+    return uni, retdf, ia, iclist
 
 
 def split_df_col(df: pd.DataFrame, delim: str, split_col: str, new_cols: List[str]=None):
@@ -55,7 +57,6 @@ def block_diagonalize_permutation(A: sp.spmatrix):
     ATA = A.transpose().dot(A)
     n, cmp = csg.connected_components(ATA)
     col_list = [list(np.where(cmp == j)[0]) for j in range(n)]
-    print(col_list)
     row_list = [list(np.unique(A[:, col_list[j]].nonzero()[0])) for j in range(n)]
     return row_list, col_list
 
