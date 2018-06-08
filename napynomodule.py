@@ -8,6 +8,27 @@ import scipy.sparse as sp
 import scipy.sparse.csgraph as csg
 
 
+importer_path = ''
+
+
+def set_importer_path(path: str):
+    global importer_path
+    importer_path = path
+
+
+def df_filter(df: pd.DataFrame, columns: List, values: List[List]):
+    m = len(columns)
+    m2 = len(values)
+    if m != m2:
+        raise Exception('Lengths must agree.')
+
+    flag = pd.Series([True for i in range(df.shape[0])])
+    for i in range(m):
+        flag &= df[columns[i]].map(lambda x: x in values[i])
+
+    return df.loc[flag, :]
+
+
 def df_unique(df_list: List[pd.DataFrame], columns=None):
     if columns is not None:
         df_list = list(map(lambda x: x.loc[:, columns], df_list))
@@ -36,10 +57,11 @@ def get_cwd():
         cwd = os.path.dirname(sys.executable)
     else:
         # we are running in a normal Python environment
-        try:
-            cwd = os.path.dirname(os.path.abspath(__file__))
-        except NameError:
-            cwd = os.getcwd()
+        # try:
+        #     cwd = os.path.dirname(os.path.abspath(__file__))
+        # except NameError:
+        #     cwd = os.getcwd()
+        cwd = importer_path
     return cwd
 
 
