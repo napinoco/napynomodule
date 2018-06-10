@@ -8,6 +8,19 @@ import scipy.sparse as sp
 import scipy.sparse.csgraph as csg
 
 
+def df_filter(df: pd.DataFrame, columns: List, values: List[List]):
+    m = len(columns)
+    m2 = len(values)
+    if m != m2:
+        raise Exception('Lengths must agree.')
+
+    flag = pd.Series([True for i in range(df.shape[0])])
+    for i in range(m):
+        flag &= df[columns[i]].map(lambda x: x in values[i])
+
+    return df.loc[flag, :]
+
+
 def df_unique(df_list: List[pd.DataFrame], columns=None):
     if columns is not None:
         df_list = list(map(lambda x: x.loc[:, columns], df_list))
@@ -31,15 +44,13 @@ def split_df_col(df: pd.DataFrame, delim: str, split_col: str, new_cols: List[st
 
 
 def get_cwd():
+    script_name = os.path.basename(sys.argv[0])
     if getattr(sys, 'frozen', False):
-        # we are running in a bundle
         cwd = os.path.dirname(sys.executable)
+    elif (script_name == 'pydevconsole.py') | (script_name == ''):
+        cwd = os.getcwd()
     else:
-        # we are running in a normal Python environment
-        try:
-            cwd = os.path.dirname(os.path.abspath(__file__))
-        except NameError:
-            cwd = os.getcwd()
+        cwd = os.path.dirname(sys.argv[0])
     return cwd
 
 
