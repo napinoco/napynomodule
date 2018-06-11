@@ -6,6 +6,7 @@ import sys
 import chardet
 import scipy.sparse as sp
 import scipy.sparse.csgraph as csg
+import xlsxwriter.worksheet
 
 
 def df_filter(df: pd.DataFrame, columns: List, values: List[List]):
@@ -71,3 +72,8 @@ def block_diagonalize_permutation(A: sp.spmatrix):
     row_list = [list(np.unique(A[:, col_list[j]].nonzero()[0])) for j in range(n)]
     return row_list, col_list
 
+
+def write_line(ws: xlsxwriter.worksheet, offset: int, line: List):
+    for j, cell in enumerate(line):
+        ws.write(offset, j, cell)
+    return offset + 1
