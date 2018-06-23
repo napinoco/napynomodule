@@ -15,7 +15,7 @@ def df_filter(df: pd.DataFrame, columns: List, values: List[List]):
     if m != m2:
         raise Exception('Lengths must agree.')
 
-    flag = pd.Series([True for i in range(df.shape[0])])
+    flag = np.ones(df.shape[0], dtype=bool)
     for i in range(m):
         flag &= df[columns[i]].map(lambda x: x in values[i])
 
